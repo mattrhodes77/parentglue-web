@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Phone, Globe, Mail, Calendar } from 'lucide-react';
-import { trackLead } from '@/lib/api';
+import { trackLead, type LeadType } from '@/lib/api';
 
 interface ContactButtonProps {
   providerId: number;
@@ -11,15 +11,18 @@ interface ContactButtonProps {
   sourcePage: 'search_results' | 'provider_profile';
 }
 
+const leadTypeMap: Record<ContactButtonProps['type'], LeadType> = {
+  phone: 'phone_reveal',
+  email: 'contact_click',
+  website: 'website_click',
+  booking: 'booking_click',
+};
+
 export function ContactButton({ providerId, type, value, sourcePage }: ContactButtonProps) {
   const [revealed, setRevealed] = useState(false);
 
   const handleClick = async () => {
-    const leadType = type === 'phone' ? 'phone_reveal' : `${type === 'website' ? 'website' : type === 'booking' ? 'booking' : 'contact'}_click`;
-    await trackLead(providerId, {
-      lead_type: leadType as 'contact_click' | 'phone_reveal' | 'website_click' | 'booking_click',
-      source_page: sourcePage,
-    });
+    await trackLead(providerId, leadTypeMap[type], sourcePage);
 
     if (type === 'phone') {
       setRevealed(true);

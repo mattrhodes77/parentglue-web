@@ -5,7 +5,7 @@ interface AuthState {
   token: string | null;
   providerId: string | null;
   businessName: string | null;
-  subscriptionTier: 'claimed' | 'basic' | 'premium' | null;
+  subscriptionTier: 'unclaimed' | 'claimed' | 'basic' | 'premium' | null;
   setAuth: (data: {
     token: string;
     provider_id: string;

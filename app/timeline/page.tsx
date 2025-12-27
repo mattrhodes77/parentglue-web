@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import api, { Timeline, TimelineEvent, ChildProfile } from "@/lib/api";
+import api, { Timeline, TimelineEvent, ChildProfile, RegionalOffice, lookupOfficeByCounty } from "@/lib/api";
+import { Phone, Mail, Globe, MapPin, Building2 } from "lucide-react";
 
 export default function TimelinePage() {
   const [timeline, setTimeline] = useState<Timeline | null>(null);
   const [profile, setProfile] = useState<ChildProfile | null>(null);
+  const [regionalOffice, setRegionalOffice] = useState<RegionalOffice | null>(null);
   const [immediateActions, setImmediateActions] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,6 +40,12 @@ export default function TimelinePage() {
       // Generate timeline from API
       const timelineData = await api.generateTimeline(profileData);
       setTimeline(timelineData);
+
+      // Fetch regional office based on profile location
+      if (profileData.state && profileData.county) {
+        const office = await lookupOfficeByCounty(profileData.state, profileData.county);
+        setRegionalOffice(office);
+      }
     } catch (err) {
       setError("Failed to load timeline");
       console.error(err);
@@ -205,6 +213,67 @@ export default function TimelinePage() {
                   </li>
                 ))}
               </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Regional Office Card */}
+      {regionalOffice && (
+        <div className="px-4 pt-4">
+          <div className="max-w-md mx-auto">
+            <div className="card bg-[var(--color-teal)]/5 border border-[var(--color-teal)]/20">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[var(--color-teal)]/10 flex items-center justify-center flex-shrink-0">
+                  <Building2 size={20} className="text-[var(--color-teal)]" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-[var(--color-charcoal)]">
+                    Your Regional Center
+                  </h3>
+                  <p className="text-sm font-medium text-[var(--color-teal-dark)]">
+                    {regionalOffice.name}
+                  </p>
+
+                  <div className="mt-3 space-y-2">
+                    {regionalOffice.address && (
+                      <div className="flex items-start gap-2 text-sm text-[var(--color-charcoal-light)]">
+                        <MapPin size={14} className="mt-0.5 flex-shrink-0" />
+                        <span>{regionalOffice.address}{regionalOffice.city ? `, ${regionalOffice.city}` : ''}</span>
+                      </div>
+                    )}
+                    {regionalOffice.phone && (
+                      <a
+                        href={`tel:${regionalOffice.phone}`}
+                        className="flex items-center gap-2 text-sm text-[var(--color-teal)] hover:text-[var(--color-teal-dark)]"
+                      >
+                        <Phone size={14} />
+                        <span>{regionalOffice.phone}</span>
+                      </a>
+                    )}
+                    {regionalOffice.email && (
+                      <a
+                        href={`mailto:${regionalOffice.email}`}
+                        className="flex items-center gap-2 text-sm text-[var(--color-teal)] hover:text-[var(--color-teal-dark)]"
+                      >
+                        <Mail size={14} />
+                        <span>{regionalOffice.email}</span>
+                      </a>
+                    )}
+                    {regionalOffice.website && (
+                      <a
+                        href={regionalOffice.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm text-[var(--color-teal)] hover:text-[var(--color-teal-dark)]"
+                      >
+                        <Globe size={14} />
+                        <span>Visit Website</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -1,39 +1,30 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Eye, MousePointerClick, Users, TrendingUp, Loader2, ArrowUpRight, Lock, LogOut } from 'lucide-react';
+import { Eye, MousePointerClick, Users, TrendingUp, Loader2, ArrowUpRight, Lock } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 
 export default function PortalDashboard() {
-  const router = useRouter();
-  const { token, businessName, subscriptionTier, logout } = useAuth();
+  const { subscriptionTier } = useAuth();
   const [loading, setLoading] = useState(true);
   const [analytics, setAnalytics] = useState<any>(null);
   const [leads, setLeads] = useState<any>(null);
-  const [subscription, setSubscription] = useState<any>(null);
 
   useEffect(() => {
-    if (!token) {
-      router.push('/portal/login');
-      return;
-    }
     loadData();
-  }, [token]);
+  }, []);
 
   const loadData = async () => {
     try {
-      const [analyticsRes, leadsRes, subRes] = await Promise.all([
+      const [analyticsData, leadsData] = await Promise.all([
         api('/api/portal/analytics'),
         api('/api/portal/leads?limit=5'),
-        api('/api/portal/subscription'),
       ]);
 
-      setAnalytics(await analyticsRes.json());
-      setLeads(await leadsRes.json());
-      setSubscription(await subRes.json());
+      setAnalytics(analyticsData);
+      setLeads(leadsData);
     } catch (e) {
       console.error('Failed to load data:', e);
     } finally {
@@ -43,7 +34,7 @@ export default function PortalDashboard() {
 
   const handleUpgrade = async (tier: string) => {
     try {
-      const res = await api('/api/portal/subscription/checkout', {
+      const data = await api<{ checkout_url?: string }>('/api/portal/subscription/checkout', {
         method: 'POST',
         body: JSON.stringify({
           tier,
@@ -51,7 +42,6 @@ export default function PortalDashboard() {
           cancel_url: `${window.location.origin}/portal`,
         }),
       });
-      const data = await res.json();
       if (data.checkout_url) {
         window.location.href = data.checkout_url;
       }
@@ -60,14 +50,9 @@ export default function PortalDashboard() {
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    router.push('/');
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center py-20">
         <Loader2 className="animate-spin text-[var(--color-teal)]" size={40} />
       </div>
     );
@@ -76,33 +61,8 @@ export default function PortalDashboard() {
   const canSeeDetails = subscriptionTier === 'basic' || subscriptionTier === 'premium';
 
   return (
-    <div className="min-h-screen bg-[var(--color-cream)]">
-      {/* Nav */}
-      <nav className="bg-white border-b border-[var(--color-cream-dark)]">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="font-display text-2xl font-semibold text-[var(--color-teal)]">
-              Parent<span className="text-[var(--color-coral)]">Glue</span>
-            </Link>
-            <span className="text-sm text-[var(--color-charcoal-light)]">Provider Portal</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-[var(--color-charcoal)]">{businessName}</span>
-            <span className="px-2 py-1 text-xs font-semibold rounded-lg bg-[var(--color-teal)]/10 text-[var(--color-teal-dark)] capitalize">
-              {subscriptionTier}
-            </span>
-            <button
-              onClick={handleLogout}
-              className="p-2 text-[var(--color-charcoal-light)] hover:text-[var(--color-charcoal)] transition-colors"
-            >
-              <LogOut size={18} />
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        {/* Upgrade Banner */}
+    <div>
+      {/* Upgrade Banner */}
         {subscriptionTier === 'claimed' && (
           <div className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-[var(--color-teal)] to-[var(--color-teal-dark)] text-white">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -284,6 +244,5 @@ export default function PortalDashboard() {
           )}
         </div>
       </div>
-    </div>
   );
 }

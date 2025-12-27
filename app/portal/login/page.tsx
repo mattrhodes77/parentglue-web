@@ -4,7 +4,7 @@ import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Loader2, ArrowRight } from 'lucide-react';
-import { api } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 
 function LoginForm() {
@@ -39,7 +39,7 @@ function LoginForm() {
             discovered_provider_id: claimId ? Number(claimId) : undefined,
           };
 
-      const res = await api(endpoint, {
+      const res = await apiFetch(endpoint, {
         method: 'POST',
         body: JSON.stringify(body),
       });

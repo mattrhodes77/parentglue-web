@@ -4,8 +4,8 @@
   "description": "Navigate autism services with confidence",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#2563eb",
+  "background_color": "#FAF7F2",
+  "theme_color": "#3D8B8B",
   "icons": [
     {
       "src": "/icon-192.png",

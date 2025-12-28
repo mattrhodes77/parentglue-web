@@ -3,19 +3,19 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Search, Heart, Clock, Shield, Users, ArrowRight, Sparkles, Building2, MapPin } from 'lucide-react';
-import { PROVIDER_TYPES, US_STATES } from '@/lib/api';
+import { Search, Heart, Clock, Shield, Users, ArrowRight, MapPin } from 'lucide-react';
+import { PROVIDER_TYPES } from '@/lib/api';
+import { LocationInput, type SelectedLocation } from '@/components/LocationInput';
 
 export default function Home() {
   const router = useRouter();
-  const [city, setCity] = useState('');
-  const [state, setState] = useState('');
+  const [location, setLocation] = useState<SelectedLocation | null>(null);
   const [providerType, setProviderType] = useState('');
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (city && state && providerType) {
-      router.push(`/search?city=${encodeURIComponent(city)}&state=${state}&provider_type=${providerType}`);
+    if (location && providerType) {
+      router.push(`/search?city=${encodeURIComponent(location.city)}&state=${location.state}&provider_type=${providerType}`);
     }
   };
 
@@ -84,50 +84,34 @@ export default function Home() {
 
           {/* Search Form */}
           <form onSubmit={handleSearch} className="animate-in delay-300 bg-white rounded-2xl shadow-[var(--shadow-medium)] p-6 max-w-3xl mx-auto">
-            <div className="grid md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="md:col-span-1">
-                <label className="block text-sm font-medium text-[var(--color-charcoal)] mb-2">City</label>
-                <input
-                  type="text"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  placeholder="Enter your city"
-                  className="w-full px-4 py-3 rounded-xl border-2 border-[var(--color-cream-dark)] focus:border-[var(--color-teal)] focus:outline-none transition-colors"
-                  required
+                <label className="block text-sm font-medium text-[var(--color-charcoal)] mb-2">Location</label>
+                <LocationInput
+                  value={location}
+                  onChange={setLocation}
+                  placeholder="City or state..."
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-[var(--color-charcoal)] mb-2">State</label>
-                <select
-                  value={state}
-                  onChange={(e) => setState(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-[var(--color-cream-dark)] focus:border-[var(--color-teal)] focus:outline-none transition-colors bg-white"
-                  required
-                >
-                  <option value="">Select...</option>
-                  {US_STATES.map((s) => (
-                    <option key={s.value} value={s.value}>{s.label}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
+              <div className="md:col-span-1">
                 <label className="block text-sm font-medium text-[var(--color-charcoal)] mb-2">Service Type</label>
                 <select
                   value={providerType}
                   onChange={(e) => setProviderType(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-[var(--color-cream-dark)] focus:border-[var(--color-teal)] focus:outline-none transition-colors bg-white"
+                  className="w-full h-12 px-4 rounded-xl border-2 border-[var(--color-cream-dark)] focus:border-[var(--color-teal)] focus:outline-none transition-colors bg-white text-[var(--color-charcoal)]"
                   required
                 >
-                  <option value="">Select...</option>
+                  <option value="">Select service...</option>
                   {PROVIDER_TYPES.map((t) => (
                     <option key={t.value} value={t.value}>{t.label}</option>
                   ))}
                 </select>
               </div>
-              <div className="flex items-end">
+              <div className="md:col-span-1 flex items-end">
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[var(--color-teal)] text-white font-semibold hover:bg-[var(--color-teal-dark)] transition-colors"
+                  disabled={!location || !providerType}
+                  className="w-full h-12 flex items-center justify-center gap-2 rounded-xl bg-[var(--color-teal)] text-white font-semibold hover:bg-[var(--color-teal-dark)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Search size={18} />
                   Search

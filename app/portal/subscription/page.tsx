@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Loader2, Check, Star, Zap, Crown, Mail } from 'lucide-react';
-import { api, Subscription } from '@/lib/api';
+import { Loader2, Check, Star, Zap, Crown, Mail, CreditCard } from 'lucide-react';
+import { api, Subscription, createBillingPortalSession } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -67,10 +67,22 @@ export default function SubscriptionPage() {
   const [loading, setLoading] = useState(true);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [upgrading, setUpgrading] = useState<string | null>(null);
+  const [openingBilling, setOpeningBilling] = useState(false);
 
   useEffect(() => {
     loadSubscription();
   }, []);
+
+  const handleManageBilling = async () => {
+    setOpeningBilling(true);
+    try {
+      const { url } = await createBillingPortalSession(window.location.href);
+      window.location.href = url;
+    } catch (e) {
+      console.error('Failed to open billing portal:', e);
+      setOpeningBilling(false);
+    }
+  };
 
   const loadSubscription = async () => {
     try {
@@ -136,14 +148,32 @@ export default function SubscriptionPage() {
                   {subscription.tier}
                 </p>
               </div>
-              {subscription.current_period_end && (
-                <div className="text-right">
-                  <p className="text-sm text-[var(--color-charcoal-light)]">Renews</p>
-                  <p className="font-medium text-[var(--color-charcoal)]">
-                    {new Date(subscription.current_period_end).toLocaleDateString()}
-                  </p>
-                </div>
-              )}
+              <div className="flex items-center gap-4">
+                {subscription.current_period_end && (
+                  <div className="text-right">
+                    <p className="text-sm text-[var(--color-charcoal-light)]">Renews</p>
+                    <p className="font-medium text-[var(--color-charcoal)]">
+                      {new Date(subscription.current_period_end).toLocaleDateString()}
+                    </p>
+                  </div>
+                )}
+                {subscription.stripe_customer_id && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleManageBilling}
+                    disabled={openingBilling}
+                    className="gap-2"
+                  >
+                    {openingBilling ? (
+                      <Loader2 className="animate-spin" size={14} />
+                    ) : (
+                      <CreditCard size={14} />
+                    )}
+                    Manage Billing
+                  </Button>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>

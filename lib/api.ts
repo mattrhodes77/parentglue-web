@@ -52,8 +52,8 @@ export async function api<T = unknown>(path: string, options: RequestInit = {}):
   return response.json();
 }
 
-// Provider types
-export const PROVIDER_TYPES = [
+// Provider types - fallback list (API preferred)
+export const PROVIDER_TYPES_FALLBACK = [
   { value: 'aba_therapy', label: 'ABA Therapy' },
   { value: 'speech_therapy', label: 'Speech Therapy' },
   { value: 'occupational_therapy', label: 'Occupational Therapy' },
@@ -65,6 +65,24 @@ export const PROVIDER_TYPES = [
   { value: 'social_skills_group', label: 'Social Skills Group' },
   { value: 'early_intervention', label: 'Early Intervention' },
 ];
+
+// Kept for backward compatibility - prefer getProviderTypes()
+export const PROVIDER_TYPES = PROVIDER_TYPES_FALLBACK;
+
+export interface ProviderType {
+  value: string;
+  label: string;
+}
+
+export async function getProviderTypes(): Promise<ProviderType[]> {
+  try {
+    const res = await fetch(`${API_URL}/api/providers/types`);
+    if (!res.ok) return PROVIDER_TYPES_FALLBACK;
+    return res.json();
+  } catch {
+    return PROVIDER_TYPES_FALLBACK;
+  }
+}
 
 // US States
 export const US_STATES = [
@@ -125,13 +143,33 @@ export async function searchProviders(params: {
 
 // Get provider details
 export async function getProvider(id: number) {
-  const res = await fetch(`${API_URL}/api/providers/${id}`);
+  const res = await fetch(`${API_URL}/api/providers/provider/${id}`);
   return res.json();
 }
 
 // Get provider lead stats (for claim banner)
 export async function getProviderLeadStats(id: number) {
   const res = await fetch(`${API_URL}/api/leads/provider/${id}/stats`);
+  return res.json();
+}
+
+// Submit inquiry to provider
+export async function submitInquiry(providerId: number, data: {
+  email?: string;
+  phone?: string;
+  child_age?: string;
+  message?: string;
+  source_page?: string;
+}) {
+  const res = await fetch(`${API_URL}/api/leads/inquiry/${providerId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ detail: 'Failed to send inquiry' }));
+    throw new Error(error.detail);
+  }
   return res.json();
 }
 
@@ -285,6 +323,66 @@ export interface GeneratedLetter {
 // Office & Location APIs
 // ============================================================================
 
+export interface StateAgency {
+  id: number;
+  state: string;
+  state_name: string;
+  agency_name: string;
+  phone: string | null;
+  website: string | null;
+}
+
+export interface OfficeStats {
+  state_agencies: number;
+  regional_offices: number;
+  enriched_offices: number;
+  county_mappings: number;
+  states_covered: number;
+}
+
+export interface OfficeType {
+  office_type: string;
+  count: number;
+}
+
+export async function getStateAgencies(): Promise<StateAgency[]> {
+  const res = await fetch(`${API_URL}/api/offices/states`);
+  return res.json();
+}
+
+export async function getStateAgency(stateCode: string): Promise<StateAgency> {
+  const res = await fetch(`${API_URL}/api/offices/states/${stateCode}`);
+  return res.json();
+}
+
+export async function getRegionalOffices(params?: {
+  state?: string;
+  office_type?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<RegionalOffice[]> {
+  const query = params ? new URLSearchParams(
+    Object.entries(params).filter(([_, v]) => v !== undefined) as [string, string][]
+  ).toString() : '';
+  const res = await fetch(`${API_URL}/api/offices/offices${query ? `?${query}` : ''}`);
+  return res.json();
+}
+
+export async function getOfficeDetail(officeId: number): Promise<{ office: RegionalOffice; counties_served: string[] }> {
+  const res = await fetch(`${API_URL}/api/offices/offices/${officeId}`);
+  return res.json();
+}
+
+export async function getOfficeTypes(): Promise<OfficeType[]> {
+  const res = await fetch(`${API_URL}/api/offices/office-types`);
+  return res.json();
+}
+
+export async function getOfficeStats(): Promise<OfficeStats> {
+  const res = await fetch(`${API_URL}/api/offices/stats`);
+  return res.json();
+}
+
 export async function getCountiesForState(stateCode: string): Promise<{ counties: County[] }> {
   const res = await fetch(`${API_URL}/api/offices/states/${stateCode}/counties`);
   return res.json();
@@ -355,6 +453,13 @@ export async function createCheckoutSession(data: {
   return api<{ checkout_url: string }>('/api/portal/subscription/checkout', {
     method: 'POST',
     body: JSON.stringify(data),
+  });
+}
+
+export async function createBillingPortalSession(returnUrl: string): Promise<{ url: string }> {
+  return api<{ url: string }>('/api/portal/subscription/billing-portal', {
+    method: 'POST',
+    body: JSON.stringify({ return_url: returnUrl }),
   });
 }
 

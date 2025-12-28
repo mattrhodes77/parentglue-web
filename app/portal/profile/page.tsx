@@ -51,7 +51,7 @@ export default function ProfilePage() {
 
   const loadProfile = async () => {
     try {
-      const data = await api<ProviderProfile>('/api/portal/provider-profile');
+      const data = await api<ProviderProfile>('/api/portal/profile');
       setProfile(data);
     } catch (e) {
       console.error('Failed to load profile:', e);
@@ -77,7 +77,7 @@ export default function ProfilePage() {
     setSaved(false);
 
     try {
-      await api('/api/portal/provider-profile', {
+      await api('/api/portal/profile', {
         method: 'PUT',
         body: JSON.stringify(profile),
       });

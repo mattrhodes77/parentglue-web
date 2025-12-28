@@ -58,7 +58,7 @@ export default function LeadsPage() {
 
   const updateLeadStatus = async (leadId: number, status: string) => {
     try {
-      await api(`/api/portal/leads/${leadId}/status`, {
+      await api(`/api/portal/leads/${leadId}`, {
         method: 'PUT',
         body: JSON.stringify({ status }),
       });

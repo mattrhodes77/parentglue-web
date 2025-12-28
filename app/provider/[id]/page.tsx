@@ -7,6 +7,8 @@ import { MapPin, Phone, Globe, Clock, Users, CheckCircle, Loader2, ArrowLeft } f
 import { getProvider, getProviderLeadStats } from '@/lib/api';
 import { ContactButton } from '@/components/providers/ContactButton';
 import { ClaimBanner } from '@/components/providers/ClaimBanner';
+import { AddToCalendarButton } from '@/components/providers/AddToCalendarButton';
+import { InquiryForm } from '@/components/providers/InquiryForm';
 
 export default function ProviderPage() {
   const params = useParams();
@@ -136,6 +138,10 @@ export default function ProviderPage() {
             {provider.consultation_booking_url && (
               <ContactButton providerId={id} type="booking" value={provider.consultation_booking_url} sourcePage="provider_profile" />
             )}
+            <AddToCalendarButton
+              providerName={provider.name}
+              providerAddress={provider.address || `${provider.city}, ${provider.state}`}
+            />
           </div>
         </div>
 
@@ -199,6 +205,11 @@ export default function ProviderPage() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Inquiry Form */}
+        <div className="mt-8">
+          <InquiryForm providerId={id} providerName={provider.name} />
         </div>
       </div>
     </div>

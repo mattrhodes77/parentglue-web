@@ -26,7 +26,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "ParentGlue - Your Child's Journey, Organized",
   description:
-    "Navigate your child's services with confidence. Track IEPs, Regional Center services, therapy schedules, and important deadlines all in one place.",
+    "Navigate your child's autism services with confidence. Find providers, track IEPs, therapy schedules, and important deadlines—all 50 states.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

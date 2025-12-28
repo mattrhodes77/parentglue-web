@@ -121,7 +121,7 @@ export default function DemoPage() {
       {/* Demo banner */}
       <div className="bg-indigo-50 dark:bg-indigo-900/20 px-4 py-3 text-center">
         <p className="text-sm text-indigo-700 dark:text-indigo-300">
-          This is a sample timeline for "Alex" (age 4, Sacramento)
+          This is a sample timeline for "Alex" (age 4)
         </p>
       </div>
 

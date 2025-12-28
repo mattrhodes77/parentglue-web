@@ -258,7 +258,7 @@ export default function LettersPage() {
               <textarea
                 value={parentAddress}
                 onChange={(e) => setParentAddress(e.target.value)}
-                placeholder="123 Main St&#10;Sacramento, CA 95814"
+                placeholder="123 Main St&#10;City, State ZIP"
                 rows={3}
                 className="input resize-none"
               />

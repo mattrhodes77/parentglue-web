@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Search, Heart, Clock, Shield, Users, ArrowRight, Sparkles } from 'lucide-react';
+import { Search, Heart, Clock, Shield, Users, ArrowRight, Sparkles, Building2, MapPin } from 'lucide-react';
 import { PROVIDER_TYPES, US_STATES } from '@/lib/api';
 
 export default function Home() {
@@ -31,6 +31,9 @@ export default function Home() {
             <Link href="/search" className="text-sm font-medium text-[var(--color-charcoal)] hover:text-[var(--color-teal)] transition-colors">
               Find Providers
             </Link>
+            <Link href="/offices" className="text-sm font-medium text-[var(--color-charcoal)] hover:text-[var(--color-teal)] transition-colors">
+              DD Offices
+            </Link>
             <Link
               href="/portal/login"
               className="text-sm font-semibold px-4 py-2 rounded-xl bg-[var(--color-teal)] text-white hover:bg-[var(--color-teal-dark)] transition-colors"
@@ -50,8 +53,8 @@ export default function Home() {
         <div className="relative max-w-4xl mx-auto text-center">
           <div className="animate-in">
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-teal)]/10 text-[var(--color-teal-dark)] text-sm font-medium mb-6">
-              <Sparkles size={16} />
-              Helping families navigate the autism journey
+              <MapPin size={16} />
+              Nationwide coverage — all 50 states
             </span>
           </div>
 
@@ -60,9 +63,24 @@ export default function Home() {
             <span className="text-[var(--color-teal)]">child&apos;s</span> unique journey
           </h1>
 
-          <p className="animate-in delay-200 text-xl text-[var(--color-charcoal-light)] max-w-2xl mx-auto mb-10">
-            Connect with ABA therapists, speech therapists, developmental specialists, and advocates in your area. No more endless searching.
+          <p className="animate-in delay-200 text-xl text-[var(--color-charcoal-light)] max-w-2xl mx-auto mb-6">
+            Connect with ABA therapists, speech therapists, developmental specialists, and advocates anywhere in the US. No more endless searching.
           </p>
+
+          <div className="animate-in delay-250 flex flex-wrap justify-center gap-8 mb-10 text-sm">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-[var(--color-teal)]">50</p>
+              <p className="text-[var(--color-charcoal-light)]">States</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-[var(--color-teal)]">370+</p>
+              <p className="text-[var(--color-charcoal-light)]">Regional Offices</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-[var(--color-teal)]">10</p>
+              <p className="text-[var(--color-charcoal-light)]">Provider Types</p>
+            </div>
+          </div>
 
           {/* Search Form */}
           <form onSubmit={handleSearch} className="animate-in delay-300 bg-white rounded-2xl shadow-[var(--shadow-medium)] p-6 max-w-3xl mx-auto">
@@ -73,7 +91,7 @@ export default function Home() {
                   type="text"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  placeholder="Sacramento"
+                  placeholder="Enter your city"
                   className="w-full px-4 py-3 rounded-xl border-2 border-[var(--color-cream-dark)] focus:border-[var(--color-teal)] focus:outline-none transition-colors"
                   required
                 />
@@ -214,6 +232,12 @@ export default function Home() {
             Helping families navigate autism services with confidence.
           </p>
           <div className="flex gap-6 text-sm">
+            <Link href="/offices" className="text-[var(--color-charcoal-light)] hover:text-[var(--color-teal)]">
+              DD Offices
+            </Link>
+            <Link href="/resources" className="text-[var(--color-charcoal-light)] hover:text-[var(--color-teal)]">
+              Resources
+            </Link>
             <Link href="/portal/login" className="text-[var(--color-charcoal-light)] hover:text-[var(--color-teal)]">
               Provider Portal
             </Link>

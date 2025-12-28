@@ -3,19 +3,19 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Search, Heart, Clock, Shield, Users, ArrowRight, MapPin } from 'lucide-react';
-import { PROVIDER_TYPES } from '@/lib/api';
+import { ArrowRight, Heart, Clock, Shield, Users, MapPin } from 'lucide-react';
 import { LocationInput, type SelectedLocation } from '@/components/LocationInput';
 
 export default function Home() {
   const router = useRouter();
   const [location, setLocation] = useState<SelectedLocation | null>(null);
-  const [providerType, setProviderType] = useState('');
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleGetStarted = (e: React.FormEvent) => {
     e.preventDefault();
-    if (location && providerType) {
-      router.push(`/search?city=${encodeURIComponent(location.city)}&state=${location.state}&provider_type=${providerType}`);
+    if (location) {
+      // Store location and go to onboarding/guided flow
+      localStorage.setItem('userLocation', JSON.stringify(location));
+      router.push('/onboarding');
     }
   };
 
@@ -82,41 +82,27 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Search Form */}
-          <form onSubmit={handleSearch} className="animate-in delay-300 bg-white rounded-2xl shadow-[var(--shadow-medium)] p-6 max-w-3xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="md:col-span-1">
-                <label className="block text-sm font-medium text-[var(--color-charcoal)] mb-2">Location</label>
+          {/* Location Form */}
+          <form onSubmit={handleGetStarted} className="animate-in delay-300 bg-white rounded-2xl shadow-[var(--shadow-medium)] p-6 max-w-xl mx-auto">
+            <p className="text-center text-[var(--color-charcoal-light)] text-sm mb-4">
+              We&apos;ll guide you to the right services for your family
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1">
                 <LocationInput
                   value={location}
                   onChange={setLocation}
-                  placeholder="City or state..."
+                  placeholder="Where are you located?"
                 />
               </div>
-              <div className="md:col-span-1">
-                <label className="block text-sm font-medium text-[var(--color-charcoal)] mb-2">Service Type</label>
-                <select
-                  value={providerType}
-                  onChange={(e) => setProviderType(e.target.value)}
-                  className="w-full h-12 px-4 rounded-xl border-2 border-[var(--color-cream-dark)] focus:border-[var(--color-teal)] focus:outline-none transition-colors bg-white text-[var(--color-charcoal)]"
-                  required
-                >
-                  <option value="">Select service...</option>
-                  {PROVIDER_TYPES.map((t) => (
-                    <option key={t.value} value={t.value}>{t.label}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="md:col-span-1 flex items-end">
-                <button
-                  type="submit"
-                  disabled={!location || !providerType}
-                  className="w-full h-12 flex items-center justify-center gap-2 rounded-xl bg-[var(--color-teal)] text-white font-semibold hover:bg-[var(--color-teal-dark)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Search size={18} />
-                  Search
-                </button>
-              </div>
+              <button
+                type="submit"
+                disabled={!location}
+                className="h-12 px-8 flex items-center justify-center gap-2 rounded-xl bg-[var(--color-teal)] text-white font-semibold hover:bg-[var(--color-teal-dark)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              >
+                Get Started
+                <ArrowRight size={18} />
+              </button>
             </div>
           </form>
         </div>
